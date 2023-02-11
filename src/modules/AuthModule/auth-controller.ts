@@ -11,8 +11,14 @@ import { HydratedDocument } from "mongoose";
 import { UserDoc } from "../../types/modelsTypes.js";
 import { DBUser } from "types/DBResponsesTypes.js";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import * as url from "url";
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+
+const authTokensPrivateKey = process.env.AUTH_TOKEN_KEY as string;
+const refreshTokensPrivateKey = process.env.REFRESH_TOKEN_KEY as string;
 
 const handleError = (res: Response, message: string) => {
   return res.status(500).json({ success: false, message });
@@ -32,7 +38,7 @@ const checkAuthTokenValidity = async (token: string) => {
 
 const checkRefreshTokenValidity = async (token: string) => {
   try {
-    jwt.verify(token, "123platon") as { _id: string };
+    jwt.verify(token, refreshTokensPrivateKey) as { _id: string };
     const checkedToken = await ExpiredTokenModel.findOne({
       type: "refresh",
       token,
@@ -83,7 +89,7 @@ export const signup = async (
       {
         _id: user._id,
       },
-      "platon123",
+      authTokensPrivateKey,
       { expiresIn: "30m" },
     );
 
@@ -91,7 +97,7 @@ export const signup = async (
       {
         _id: user._id,
       },
-      "123platon",
+      refreshTokensPrivateKey,
       { expiresIn: "30d" },
     );
 
@@ -133,7 +139,7 @@ export const login = async (
       {
         _id: user._id,
       },
-      "platon123",
+      authTokensPrivateKey,
       { expiresIn: "30m" },
     );
 
@@ -141,7 +147,7 @@ export const login = async (
       {
         _id: user._id,
       },
-      "123platon",
+      refreshTokensPrivateKey,
       { expiresIn: "30d" },
     );
 
@@ -208,7 +214,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 
     if (refreshToken) {
       try {
-        decoded = jwt.verify(refreshToken, "123platon") as {
+        decoded = jwt.verify(refreshToken, refreshTokensPrivateKey) as {
           _id: string;
         };
       } catch (err: any) {
@@ -244,7 +250,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       {
         _id: user._id,
       },
-      "platon123",
+      authTokensPrivateKey,
       { expiresIn: "30m" },
     );
 

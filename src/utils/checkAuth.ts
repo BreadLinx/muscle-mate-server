@@ -1,6 +1,11 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
+import dotenv from "dotenv";
+dotenv.config();
+
+const authTokensPrivateKey = process.env.AUTH_TOKEN_KEY as string;
+
 export default (
   req: Request<{ userId: string; authToken: string }>,
   res: Response,
@@ -10,7 +15,9 @@ export default (
 
   if (authToken) {
     try {
-      const decoded = jwt.verify(authToken, "platon123") as { _id: string };
+      const decoded = jwt.verify(authToken, authTokensPrivateKey) as {
+        _id: string;
+      };
       req.params.userId = decoded._id;
       req.params.authToken = authToken;
 
