@@ -1,6 +1,5 @@
 import UserModel from "./user-model.js";
 import ExpiredTokenModel from "./expiredToken-model.js";
-
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
@@ -9,7 +8,10 @@ import path from "path";
 import { Response, Request } from "express";
 import { HydratedDocument } from "mongoose";
 import { UserDoc } from "../../types/modelsTypes.js";
-import { DBUser } from "types/DBResponsesTypes.js";
+import { checkAuthTokenValidity } from "../../utils/checkAuthTokenValidity.js";
+import { IAuthRequestParams } from "../../types/requestTypes.js";
+import { getUserFromDB } from "../../utils/getUserFromDB.js";
+import { handleError } from "../../utils/handleError.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -19,22 +21,6 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 const authTokensPrivateKey = process.env.AUTH_TOKEN_KEY as string;
 const refreshTokensPrivateKey = process.env.REFRESH_TOKEN_KEY as string;
-
-const handleError = (res: Response, message: string) => {
-  return res.status(500).json({ success: false, message });
-};
-
-const checkAuthTokenValidity = async (token: string) => {
-  const checkedToken = await ExpiredTokenModel.findOne({
-    type: "auth",
-    token,
-  });
-
-  if (checkedToken) {
-    return false;
-  }
-  return true;
-};
 
 const checkRefreshTokenValidity = async (token: string) => {
   try {
@@ -51,16 +37,6 @@ const checkRefreshTokenValidity = async (token: string) => {
   } catch (err: any) {
     return false;
   }
-};
-
-const getUserFromDB = async (userId: string) => {
-  const user = await UserModel.findById(userId);
-
-  if (!user) {
-    return null;
-  }
-
-  return user.toJSON();
 };
 
 export const signup = async (
@@ -81,6 +57,38 @@ export const signup = async (
       name: req.body.name,
       passwordHash: password,
       avatarUrl: "",
+      role: "user",
+      favoriteExercices: [],
+      workouts: {
+        monday: {
+          name: "",
+          exercices: [],
+        },
+        tuesday: {
+          name: "",
+          exercices: [],
+        },
+        wednesday: {
+          name: "",
+          exercices: [],
+        },
+        thursday: {
+          name: "",
+          exercices: [],
+        },
+        friday: {
+          name: "",
+          exercices: [],
+        },
+        saturday: {
+          name: "",
+          exercices: [],
+        },
+        sunday: {
+          name: "",
+          exercices: [],
+        },
+      },
     });
 
     const user = await doc.save();
@@ -98,10 +106,10 @@ export const signup = async (
         _id: user._id,
       },
       refreshTokensPrivateKey,
-      { expiresIn: "30d" },
+      { expiresIn: "365d" },
     );
 
-    const { passwordHash, __v, ...userData } = user.toJSON();
+    const { passwordHash, ...userData } = user.toJSON();
 
     res.json({ success: true, userData, authToken, refreshToken });
   } catch (err: any) {
@@ -148,10 +156,10 @@ export const login = async (
         _id: user._id,
       },
       refreshTokensPrivateKey,
-      { expiresIn: "30d" },
+      { expiresIn: "365d" },
     );
 
-    const { passwordHash, __v, ...userData } = user.toJSON();
+    const { passwordHash, ...userData } = user.toJSON();
 
     res.json({ success: true, userData, authToken, refreshToken });
   } catch (err: any) {
@@ -160,11 +168,7 @@ export const login = async (
 };
 
 export const signout = async (
-  req: Request<
-    { userId: string; authToken: string },
-    {},
-    { refreshToken: string }
-  >,
+  req: Request<IAuthRequestParams, {}, { refreshToken: string }>,
   res: Response,
 ) => {
   try {
@@ -238,7 +242,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       });
     }
 
-    const user = (await getUserFromDB(decoded._id)) as DBUser;
+    const user = await getUserFromDB(decoded._id);
     if (!user) {
       return res.status(403).json({
         success: false,
@@ -261,7 +265,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 };
 
 export const getMe = async (
-  req: Request<{ userId: string; authToken: string }>,
+  req: Request<IAuthRequestParams>,
   res: Response,
 ) => {
   try {
@@ -273,7 +277,7 @@ export const getMe = async (
       });
     }
 
-    const user = (await getUserFromDB(req.params.userId)) as DBUser;
+    const user = await getUserFromDB(req.params.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -281,7 +285,7 @@ export const getMe = async (
       });
     }
 
-    const { passwordHash, __v, ...userData } = user;
+    const { passwordHash, ...userData } = user;
 
     res.json({ success: true, userData });
   } catch (err: any) {
@@ -294,24 +298,33 @@ export const patchAvatar = async (
   res: Response,
 ) => {
   try {
-    await checkAuthTokenValidity(req.params.authToken);
-    const user = (await getUserFromDB(req.params.userId)) as DBUser;
+    const tokenValidity = await checkAuthTokenValidity(req.params.authToken);
+    if (!tokenValidity) {
+      return res.status(403).json({
+        success: false,
+        message: "invalid signature",
+      });
+    }
+
+    const user = await getUserFromDB(req.params.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Такого пользователя не существует",
+        message: "there is no such a user",
       });
     }
 
     const imageAdress = user.avatarUrl;
 
     if (imageAdress !== "") {
-      const adress = path.join(__dirname, "..", "..", imageAdress);
-      fs.unlink(adress, (err: any) => {
-        if (err) {
+      const adress = path.join(__dirname, "..", "..", "..", imageAdress);
+      try {
+        fs.unlink(adress, err => {
           console.log(err);
-        }
-      });
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     if (!req.file) {
