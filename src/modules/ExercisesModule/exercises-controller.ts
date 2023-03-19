@@ -34,12 +34,12 @@ export const createExercise = async (
       });
     }
 
-    // if (!user.role || user.role === "user") {
-    //   return res.status(500).json({
-    //     success: false,
-    //     message: "you don not have enough rights to do this action",
-    //   });
-    // }
+    if (!user.role || user.role === "user") {
+      return res.status(500).json({
+        success: false,
+        message: "you don not have enough rights to do this action",
+      });
+    }
 
     if (!req.file) {
       handleError(res, "there was a trouble adding the file, try again later");
@@ -60,7 +60,7 @@ export const createExercise = async (
       });
     }
 
-    const muscleGroups = req.body.groups.split(",");
+    const muscleGroups = req.body.groups.split(", ");
 
     const doc = new ExerciseModel({
       image: imageURL,
