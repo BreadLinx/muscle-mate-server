@@ -11,4 +11,9 @@ export const loginValidation = [
   body("password").isLength({ min: 5 }),
 ];
 
+export const createUserExerciseValidation = [
+  body("name").isLength({ min: 3 }),
+  body("tutorialLink").isURL(),
+];
+
 export const signoutValidation = [body("refreshToken").isJWT()];

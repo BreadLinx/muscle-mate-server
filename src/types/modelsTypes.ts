@@ -1,11 +1,13 @@
 import { Types } from "mongoose";
 
 interface UserDocExercise {
-  _id: string;
+  exerciseId: string;
+  exerexerciseType: "self" | "common";
   weight: number;
   weightIncrease: number;
   repeats: number;
   timesPerRepeat: number;
+  completed: boolean;
 }
 export interface UserDoc {
   name: string;
@@ -13,47 +15,44 @@ export interface UserDoc {
   passwordHash: string;
   avatarUrl: string;
   role: "user" | "moderator" | "admin" | "owner";
-  favoriteExercices: string[];
+  userExercises: ExerciseDoc[];
   workouts: {
     monday: {
       name: string;
-      exercices: UserDocExercise[];
+      completed: boolean;
+      exercises: UserDocExercise[];
     };
     tuesday: {
       name: string;
-      exercices: UserDocExercise[];
+      completed: boolean;
+      exercises: UserDocExercise[];
     };
     wednesday: {
       name: string;
-      exercices: UserDocExercise[];
+      completed: boolean;
+      exercises: UserDocExercise[];
     };
     thursday: {
       name: string;
-      exercices: UserDocExercise[];
+      completed: boolean;
+      exercises: UserDocExercise[];
     };
     friday: {
       name: string;
-      exercices: UserDocExercise[];
+      completed: boolean;
+      exercises: UserDocExercise[];
     };
     saturday: {
       name: string;
-      exercices: UserDocExercise[];
+      completed: boolean;
+      exercises: UserDocExercise[];
     };
     sunday: {
       name: string;
-      exercices: UserDocExercise[];
+      completed: boolean;
+      exercises: UserDocExercise[];
     };
   };
-}
-
-export interface PostsDoc {
-  text: string;
-  imageUrl?: string;
-  likes: string[];
-  comments: { text: string; user: string }[];
-  shares: string[];
-  viewsCount: number;
-  owner: Types.ObjectId;
 }
 
 export interface ExpiredTokenDoc {
