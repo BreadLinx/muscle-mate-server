@@ -34,6 +34,8 @@ const UserSchema = new Schema<UserDoc>(
         exercises: [
           {
             exerciseId: String,
+            name: String,
+            image: String,
             weight: Number,
             weightIncrease: Number,
             repeats: Number,
@@ -48,6 +50,8 @@ const UserSchema = new Schema<UserDoc>(
         exercises: [
           {
             exerciseId: String,
+            name: String,
+            image: String,
             weight: Number,
             weightIncrease: Number,
             repeats: Number,
@@ -62,6 +66,8 @@ const UserSchema = new Schema<UserDoc>(
         exercises: [
           {
             exerciseId: String,
+            name: String,
+            image: String,
             weight: Number,
             weightIncrease: Number,
             repeats: Number,
@@ -76,6 +82,8 @@ const UserSchema = new Schema<UserDoc>(
         exercises: [
           {
             exerciseId: String,
+            name: String,
+            image: String,
             weight: Number,
             weightIncrease: Number,
             repeats: Number,
@@ -90,6 +98,8 @@ const UserSchema = new Schema<UserDoc>(
         exercises: [
           {
             exerciseId: String,
+            name: String,
+            image: String,
             weight: Number,
             weightIncrease: Number,
             repeats: Number,
@@ -104,6 +114,8 @@ const UserSchema = new Schema<UserDoc>(
         exercises: [
           {
             exerciseId: String,
+            name: String,
+            image: String,
             weight: Number,
             weightIncrease: Number,
             repeats: Number,
@@ -118,6 +130,8 @@ const UserSchema = new Schema<UserDoc>(
         exercises: [
           {
             exerciseId: String,
+            name: String,
+            image: String,
             weight: Number,
             weightIncrease: Number,
             repeats: Number,

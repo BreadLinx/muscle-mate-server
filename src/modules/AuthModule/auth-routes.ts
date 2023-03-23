@@ -8,6 +8,7 @@ import {
   signout,
   refreshToken,
   createUserExercise,
+  saveDayWorkoutChanges,
 } from "./auth-controller.js";
 import {
   signupValidation,
@@ -37,8 +38,9 @@ router.post(
   "/auth/me/exercises",
   checkAuth,
   upload.single("exerciseImage"),
-  createUserExerciseValidation,
+  // createUserExerciseValidation,
   createUserExercise,
 );
+router.post("/auth/me/workouts/changeday", checkAuth, saveDayWorkoutChanges);
 
 export default router;

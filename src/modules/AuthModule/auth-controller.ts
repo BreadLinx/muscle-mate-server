@@ -7,12 +7,13 @@ import fs from "fs";
 import path from "path";
 import { Response, Request } from "express";
 import { HydratedDocument } from "mongoose";
-import { UserDoc } from "../../types/modelsTypes.js";
+import { IWorkoutDay, Tdays, UserDoc } from "../../types/modelsTypes.js";
 import { checkAuthTokenValidity } from "../../utils/checkAuthTokenValidity.js";
 import { IAuthRequestParams } from "../../types/requestTypes.js";
 import { getUserFromDB } from "../../utils/getUserFromDB.js";
 import { handleError } from "../../utils/handleError.js";
 import { handleUpload } from "../../utils/cloudinary.js";
+import { TWorkouts } from "../../types/modelsTypes.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -408,6 +409,49 @@ export const createUserExercise = async (
     res.json({
       success: true,
       data: { ...userData },
+    });
+  } catch (err: any) {
+    handleError(res, err);
+  }
+};
+
+export const saveDayWorkoutChanges = async (
+  req: Request<
+    { userId: string; authToken: string },
+    {},
+    { day: IWorkoutDay & { dayName: Tdays } }
+  >,
+  res: Response,
+) => {
+  try {
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json(errors.array());
+    // }
+    const tokenValidity = await checkAuthTokenValidity(req.params.authToken);
+    if (!tokenValidity) {
+      return res.status(403).json({
+        success: false,
+        message: "invalid signature",
+      });
+    }
+    const user = await UserModel.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "there is no such a user",
+      });
+    }
+    const { dayName, ...dayData } = req.body.day;
+
+    user.workouts[dayName] = {
+      ...dayData,
+    };
+
+    const userData = (await user.save()).toJSON();
+    res.json({
+      success: true,
+      data: { ...userData.workouts[dayName] },
     });
   } catch (err: any) {
     handleError(res, err);

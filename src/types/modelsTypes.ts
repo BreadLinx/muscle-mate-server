@@ -1,14 +1,34 @@
 import { Types } from "mongoose";
 
-interface UserDocExercise {
+export interface UserDocExercise {
   exerciseId: string;
-  exerexerciseType: "self" | "common";
+  name: string;
+  image: string;
   weight: number;
   weightIncrease: number;
   repeats: number;
   timesPerRepeat: number;
   completed: boolean;
 }
+
+export type Tdays =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+export interface IWorkoutDay {
+  name: string;
+  completed: boolean;
+  exercises: UserDocExercise[];
+}
+
+export type TWorkouts = Record<Tdays, IWorkoutDay>;
+
 export interface UserDoc {
   name: string;
   email: string;
@@ -16,43 +36,7 @@ export interface UserDoc {
   avatarUrl: string;
   role: "user" | "moderator" | "admin" | "owner";
   userExercises: ExerciseDoc[];
-  workouts: {
-    monday: {
-      name: string;
-      completed: boolean;
-      exercises: UserDocExercise[];
-    };
-    tuesday: {
-      name: string;
-      completed: boolean;
-      exercises: UserDocExercise[];
-    };
-    wednesday: {
-      name: string;
-      completed: boolean;
-      exercises: UserDocExercise[];
-    };
-    thursday: {
-      name: string;
-      completed: boolean;
-      exercises: UserDocExercise[];
-    };
-    friday: {
-      name: string;
-      completed: boolean;
-      exercises: UserDocExercise[];
-    };
-    saturday: {
-      name: string;
-      completed: boolean;
-      exercises: UserDocExercise[];
-    };
-    sunday: {
-      name: string;
-      completed: boolean;
-      exercises: UserDocExercise[];
-    };
-  };
+  workouts: TWorkouts;
 }
 
 export interface ExpiredTokenDoc {

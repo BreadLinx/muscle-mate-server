@@ -20,6 +20,13 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.get("/testconnection", (req, res) => {
+  res.json({
+    success: true,
+    message: "server is available",
+  });
+});
+
 app.use(authRoutes);
 app.use(exercisesRoutes);
 
