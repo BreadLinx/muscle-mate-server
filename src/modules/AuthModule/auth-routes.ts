@@ -38,7 +38,7 @@ router.post(
   "/auth/me/exercises",
   checkAuth,
   upload.single("exerciseImage"),
-  // createUserExerciseValidation,
+  createUserExerciseValidation,
   createUserExercise,
 );
 router.post("/auth/me/workouts/changeday", checkAuth, saveDayWorkoutChanges);
